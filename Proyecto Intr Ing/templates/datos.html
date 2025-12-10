@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estación de Monitoreo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path
+                        d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,8M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z" />
+                </svg>
+            </div>
+            <span>SIMMECHI</span>
+        </div>
+        <nav>
+            <div class="nav-item active" onclick="switchView('dashboard')">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M13,3V9H21V3M13,21H21V11H13M3,21H11V15H3M3,13H11V3H3V13Z" />
+                </svg>
+                Dashboard
+            </div>
+            <div class="nav-item" onclick="switchView('history')">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path
+                        d="M13.5,8H12V13L14.1,15.1L14.9,14.3L13.5,12.9V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3" />
+                </svg>
+                Historial
+            </div>
+            <div class="nav-item" onclick="switchView('settings')">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path
+                        d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.95C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
+                </svg>
+                Ajustes
+            </div>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        <header>
+            <div class="header-title" id="page-title">Dashboard</div>
+            <div class="header-actions">
+                <div id="connectionStatus" class="status-badge">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Conectando...</span>
+                </div>
+                <div id="lastGlobal" style="font-size: 0.875rem; color: var(--text-secondary);">--/--/----, --:--:--
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                        <path
+                            d="M12,18C11.11,18 10.26,17.8 9.5,17.45C11.56,16.5 13,14.42 13,12C13,9.58 11.56,7.5 9.5,6.55C10.26,6.2 11.11,6 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31L23.31,12L20,8.69Z" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div id="view-dashboard" class="view-section active dashboard-grid">
+            <div class="card" id="card-mq">
+                <div class="card-header">
+                    <div class="card-info">
+                        <h3>Gases Contaminantes</h3>
+                        <p>Sensor MQ135</p>
+                    </div>
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M21,3H3A2,2 0 0,0 1,5V19A2,2 0 0,0 3,21H21A2,2 0 0,0 23,19V5A2,2 0 0,0 21,3M21,19H3V5H21V19M12,6C8.5,6 5.83,8.5 5.11,11.83C5.6,11.31 6.27,11 7,11A4,4 0 0,1 11,15V18H13V15A4,4 0 0,1 17,11C17.73,11 18.4,11.31 18.89,11.83C18.17,8.5 15.5,6 12,6Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="metric-value" id="mq-value">--</div>
+                <div class="metric-trend" id="mq-status-text">Esperando datos...</div>
+            </div>
+
+            <div class="card" id="card-pm25">
+                <div class="card-header">
+                    <div class="card-info">
+                        <h3>Partículas Respirables</h3>
+                        <p>PM2.5 (SDS011)</p>
+                    </div>
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19,13H13V19H19V13M19,5H13V11H19V5M11,13H5V19H11V13M11,5H5V11H11V5Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="metric-value" id="pm25-value">--</div>
+                <div class="metric-trend" id="pm25-status-text">Esperando datos...</div>
+            </div>
+
+            <div class="card" id="card-pm10">
+                <div class="card-header">
+                    <div class="card-info">
+                        <h3>Partículas Inhalables</h3>
+                        <p>PM10 (SDS011)</p>
+                    </div>
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19,13H13V19H19V13M19,5H13V11H19V5M11,13H5V19H11V13M11,5H5V11H11V5Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="metric-value" id="pm10-value">--</div>
+                <div class="metric-trend" id="pm10-status-text">Esperando datos...</div>
+            </div>
+
+            <div class="card" id="card-temp">
+                <div class="card-header">
+                    <div class="card-info">
+                        <h3>Temperatura</h3>
+                        <p>Sensor BMP280</p>
+                    </div>
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M15,13V5A3,3 0 0,0 9,5V13A5,5 0 1,0 15,13M12,4A1,1 0 0,1 13,5V12H11V5A1,1 0 0,1 12,4Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="metric-value" id="temp-value">--</div>
+                <div class="metric-trend" id="temp-status-text">Esperando datos...</div>
+            </div>
+
+            <div class="card" id="card-pres">
+                <div class="card-header">
+                    <div class="card-info">
+                        <h3>Presión</h3>
+                        <p>Sensor BMP280</p>
+                    </div>
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12,16A3,3 0 0,1 9,13C9,11.88 9.61,10.9 10.5,10.39L20.21,4.77L12,2L3.79,4.77L13.5,10.39C14.39,10.9 15,11.88 15,13A3,3 0 0,1 12,16Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="metric-value" id="pres-value">--</div>
+                <div class="metric-trend" id="pres-status-text">Esperando datos...</div>
+            </div>
+        </div>
+
+        <div id="view-history" class="view-section">
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Índice</th>
+                            <th>Hora</th>
+                            <th>MQ135 (ppm)</th>
+                            <th>PM2.5 (µg/m³)</th>
+                            <th>PM10 (µg/m³)</th>
+                            <th>Temp (°C)</th>
+                            <th>Presión (hPa)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-settings" class="view-section">
+            <div class="settings-container">
+                <h3>Configuración de Umbrales</h3>
+
+                <h4 class="settings-subtitle">MQ135 - Gases Contaminantes</h4>
+                <div class="form-group">
+                    <label>Alerta Amarilla (PPM)</label>
+                    <input type="number" id="set-mq-warn" value="800">
+                </div>
+                <div class="form-group">
+                    <label>Alerta Roja (PPM)</label>
+                    <input type="number" id="set-mq-danger" value="1200">
+                </div>
+
+                <h4 class="settings-subtitle">PM2.5 - Partículas Respirables</h4>
+                <div class="form-group">
+                    <label>Alerta Amarilla (µg/m³)</label>
+                    <input type="number" id="set-pm-warn" value="12">
+                </div>
+                <div class="form-group">
+                    <label>Alerta Roja (µg/m³)</label>
+                    <input type="number" id="set-pm-danger" value="35">
+                </div>
+
+                <h4 class="settings-subtitle">PM10 - Partículas Inhalables</h4>
+                <div class="form-group">
+                    <label>Alerta Amarilla (µg/m³)</label>
+                    <input type="number" id="set-pm10-warn" value="54">
+                </div>
+                <div class="form-group">
+                    <label>Alerta Roja (µg/m³)</label>
+                    <input type="number" id="set-pm10-danger" value="154">
+                </div>
+
+                <h4 class="settings-subtitle">Temperatura - Zona de Confort (o porque nombre cambiamos zona de Confort)</h4>
+                <div class="form-group">
+                    <label>Temperatura Mínima (°C)</label>
+                    <input type="number" id="set-temp-low" value="18">
+                </div>
+                <div class="form-group">
+                    <label>Temperatura Máxima (°C)</label>
+                    <input type="number" id="set-temp-high" value="30">
+                </div>
+
+                <h4 class="settings-subtitle">Presión - Rango Normal</h4>
+                <div class="form-group">
+                    <label>Presión Mínima (hPa)</label>
+                    <input type="number" id="set-pres-low" value="1000">
+                </div>
+                <div class="form-group">
+                    <label>Presión Máxima (hPa)</label>
+                    <input type="number" id="set-pres-high" value="1020">
+                </div>
+
+                <button class="btn-primary" onclick="saveSettings()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+
+</html>
