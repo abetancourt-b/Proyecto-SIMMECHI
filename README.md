@@ -1,22 +1,15 @@
-# Requisitos:
+# Requisitos Python - VS Code:
 
 En terminal instalar:
 
 - pip install flask
 
-# En MQ135 y SDS011, los colores funcionan asi:
+# Requisitos Arduino IDE:
 
-- Verde  ->  Excelente
-- Amarillo  ->  Precaución
-- Rojo  ->  Peligro
+Instalar:  Adafruit Unified Sensor
 
-# En BMP280 - Temperatura, los colores funcionan asi:
+- Firebase ESP32 Client by: Mobizt
 
-- Azul  ->  Frio
-- Verde  ->  Como Comfort o Estable
-- Rojo  ->  Calor
+- Adafruit BMP280 Library by: Adafruit
 
-# En BMP280 - Presión, los colores funcionan asi:
-
-- Azul  ->  Estable (Dentro del rango hPa)
-- Amarillo  ->  Anormal (Fuera del rango hPa general) 
+- Adafruit Unified Sensor by: Adafruit
