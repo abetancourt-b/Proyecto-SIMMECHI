@@ -11,8 +11,8 @@
 #include <addons/TokenHelper.h>
 
 
-#define WIFI_SSID "Antonio"
-#define WIFI_PASSWORD "12345678"
+#define WIFI_SSID "Tu Wifi"
+#define WIFI_PASSWORD "Tu Contraseña Wifi"
 
 #define API_KEY "AIzaSyAkZoxB2TfujfWVu_8AttZWKNKZqvSY8D4"
 #define DATABASE_URL                                                           \
@@ -51,7 +51,7 @@ String getTime() {
   return String(buffer);
 }
 
-// ---------------- VALIDAR SDS011 --------------------
+// Validar SDS011
 bool validatePacket(uint8_t *buf) {
   if (buf[0] != 0xAA)
     return false;
@@ -61,9 +61,8 @@ bool validatePacket(uint8_t *buf) {
     return false;
   return true;
 }
-// -----------------------------------------------------
 
-// ---------------- CONVERTIR MQ135 A PPM -------------
+// MQ135 a PPM
 float convertToPPM(int raw) {
 
   float voltage = raw * (3.3 / 4095.0);
@@ -77,7 +76,6 @@ float convertToPPM(int raw) {
 
   return ppm;
 }
-// -----------------------------------------------------
 
 void setup() {
   Serial.begin(115200);
@@ -150,7 +148,7 @@ void loop() {
     digitalWrite(Buzzer, HIGH);
   }
 
-  // ---------------- SDS011 LECTOR -----------------------
+  // Lector SDS011
   if (sdsSerial.available() >= 10) {
     uint8_t buf[10];
     sdsSerial.readBytes(buf, 10);
@@ -166,7 +164,6 @@ void loop() {
                     pm10_global);
     }
   }
-  // ------------------------------------------------------
 
   FirebaseJson json;
 
