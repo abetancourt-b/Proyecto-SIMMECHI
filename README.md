@@ -6,10 +6,11 @@ En terminal instalar:
 
 # Requisitos Arduino IDE:
 
-Instalar:  Adafruit Unified Sensor
+Instalar:
 
 - Firebase ESP32 Client by: Mobizt
 
 - Adafruit BMP280 Library by: Adafruit
 
 - Adafruit Unified Sensor by: Adafruit
+
